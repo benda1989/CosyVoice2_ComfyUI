@@ -2,16 +2,13 @@
 A plugin of ComfyUI for CosyVoice2, one component for text to Sonic Video 
 ## install plugin
 ```sh
-git clone --recursive https://github.com/benda1989/CosyVoice2_ComfyUI.git
-# If you failed to clone submodule due to network failures, please run following command until success
-cd CosyVoice2_ComfyUI
-git submodule update --init --recursive
+git clone https://github.com/benda1989/CosyVoice2_ComfyUI.git
 ```
 ## Install dependency packages
 ```sh
 cd CosyVoice2_ComfyUI
 conda install -y -c conda-forge pynini==2.1.5
-pip install -r CosyVoice/requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
 # If you encounter sox compatibility issues
 # ubuntu
 sudo apt-get install sox libsox-dev

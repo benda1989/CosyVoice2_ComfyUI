@@ -1,0 +1,275 @@
+{
+    "last_node_id": 23,
+    "last_link_id": 30,
+    "nodes": [
+      {
+        "id": 14,
+        "type": "SaveAudio",
+        "pos": [
+          915.923095703125,
+          5.143223285675049
+        ],
+        "size": [
+          315,
+          100
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "audio",
+            "type": "AUDIO",
+            "link": 22
+          }
+        ],
+        "outputs": [],
+        "properties": {
+          "Node name for S&R": "SaveAudio"
+        },
+        "widgets_values": [
+          "audio/ComfyUI",
+          null
+        ]
+      },
+      {
+        "id": 13,
+        "type": "LoadAudio",
+        "pos": [
+          29.812053680419922,
+          -146.0432586669922
+        ],
+        "size": [
+          315,
+          124
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "AUDIO",
+            "type": "AUDIO",
+            "links": [
+              21
+            ],
+            "slot_index": 0,
+            "shape": 3
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "LoadAudio"
+        },
+        "widgets_values": [
+          "audio.wav",
+          null,
+          ""
+        ]
+      },
+      {
+        "id": 19,
+        "type": "CosyVoice3s",
+        "pos": [
+          499.2647705078125,
+          -92.83563232421875
+        ],
+        "size": [
+          315,
+          146
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "audio",
+            "type": "AUDIO",
+            "link": 21
+          },
+          {
+            "name": "prompt",
+            "type": "TEXT",
+            "link": 29
+          },
+          {
+            "name": "text",
+            "type": "TEXT",
+            "link": 30
+          }
+        ],
+        "outputs": [
+          {
+            "name": "AUDIO",
+            "type": "AUDIO",
+            "links": [
+              22,
+              28
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "CosyVoice3s"
+        },
+        "widgets_values": [
+          1,
+          989,
+          "randomize"
+        ]
+      },
+      {
+        "id": 23,
+        "type": "Text",
+        "pos": [
+          9.779726028442383,
+          33.91499328613281
+        ],
+        "size": [
+          400,
+          200
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "TEXT",
+            "type": "TEXT",
+            "links": [
+              29
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "Text"
+        },
+        "widgets_values": [
+          "我是通易实验室语音团队全新推出的生成式语音大模型，提供舒适自然的语音合成能力"
+        ]
+      },
+      {
+        "id": 22,
+        "type": "Text",
+        "pos": [
+          16.880470275878906,
+          277.3664855957031
+        ],
+        "size": [
+          400,
+          200
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "TEXT",
+            "type": "TEXT",
+            "links": [
+              30
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "Text"
+        },
+        "widgets_values": [
+          "收到好友从远方寄来的生日礼物，那份意外的惊喜与深深的祝福让我心中充满了甜蜜的快乐，笑容如花儿般绽放。"
+        ]
+      },
+      {
+        "id": 21,
+        "type": "PreviewAudio",
+        "pos": [
+          916.083740234375,
+          155.23504638671875
+        ],
+        "size": [
+          315,
+          76
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "audio",
+            "type": "AUDIO",
+            "link": 28
+          }
+        ],
+        "outputs": [],
+        "properties": {
+          "Node name for S&R": "PreviewAudio"
+        },
+        "widgets_values": [
+          null
+        ]
+      }
+    ],
+    "links": [
+      [
+        21,
+        13,
+        0,
+        19,
+        0,
+        "AUDIO"
+      ],
+      [
+        22,
+        19,
+        0,
+        14,
+        0,
+        "AUDIO"
+      ],
+      [
+        28,
+        19,
+        0,
+        21,
+        0,
+        "AUDIO"
+      ],
+      [
+        29,
+        23,
+        0,
+        19,
+        1,
+        "TEXT"
+      ],
+      [
+        30,
+        22,
+        0,
+        19,
+        2,
+        "TEXT"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 0.657215129905197,
+        "offset": [
+          167.28053305444095,
+          260.052639937471
+        ]
+      },
+      "node_versions": {
+        "comfy-core": "0.3.12",
+        "CosyVoice2-ComfyUI": "unknown"
+      },
+      "VHS_latentpreview": false,
+      "VHS_latentpreviewrate": 0
+    },
+    "version": 0.4
+  }
