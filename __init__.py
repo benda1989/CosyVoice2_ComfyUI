@@ -1,5 +1,11 @@
-import sys
 import os
+import sys
+
+import gc
+import torch
+import librosa
+import torchaudio
+
 now_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(now_dir, 'third_party/Matcha-TTS'))
 sys.path.append(now_dir)
@@ -13,9 +19,6 @@ if not os.path.exists(os.path.join(model_dir,"CosyVoice2-0.5B")):
 
 from cosyvoice.cli.cosyvoice import  CosyVoice2
 from cosyvoice.utils.common import set_all_random_seed
-import torchaudio
-import torch
-import librosa
 
 max_val = 0.8
 prompt_sr, target_sr = 16000, 24000
@@ -36,15 +39,34 @@ def postprocess(audio, top_db=60, hop_length=220, win_length=440):
     speech = torch.concat([speech, torch.zeros(1, int(target_sr * 0.2))], dim=1)
     return speech
 
-
-class CosyVoice():
+class Loader:
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
+                "model": (os.listdir(model_dir),),
+                "load_jit": ("BOOLEAN", {"default": True},),
+                "load_onnx": ("BOOLEAN", {"default": False},),
+                "load_trt": ("BOOLEAN", {"default": False},),
+            },
+        }
+    RETURN_TYPES = ("MODEL_CosyVoice",)
+    RETURN_NAMES = ("model",)
+    FUNCTION = "run"
+    CATEGORY = "GKK·CosVoice"
+    def run(self, model, load_jit, load_onnx, load_trt):
+        return (CosyVoice2(os.path.join(model_dir,model), load_jit=load_jit, load_onnx=load_onnx, load_trt=load_trt),)
+
+class CosyVoice():
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": ("MODEL_CosyVoice",),
                 "audio": ("AUDIO",),
                 "text": ("TEXT",),
-                "model": (['3s复刻', '跨语种复刻', '语言控制'],{
+                "mode": (['3s复刻', '跨语种复刻', '语言控制'],{
                     "default": "3s复刻"
                 }),
                 "speed": ("FLOAT", {"default": 1.0, "min": 0.5, "max": 1.5, "step": 0.1}),
@@ -58,38 +80,39 @@ class CosyVoice():
             }
         }
 
-    RETURN_TYPES = ("AUDIO",)
+    RETURN_TYPES = ("AUDIO","speechs_dict")
+    RETURN_NAMES = ("audio","speechs")
     FUNCTION = "run"
     CATEGORY = "GKK·CosVoice"
-    _cosyvoice = CosyVoice2(os.path.join(model_dir,"CosyVoice2-0.5B"), load_jit=True, load_onnx=False, load_trt=False)
+    __model = None
 
-    def models(self):
-        return os.listdir(model_dir)
-    
-    def reload(self,model="CosyVoice2-0.5B",load_jit=True, load_onnx=False, load_trt=False):
-        self._cosyvoice = CosyVoice2(os.path.join(model_dir,model), load_jit=load_jit, load_onnx=load_onnx, load_trt=load_trt)
-
-    def run(self,audio, text, model, speed, seed,  prompt=None, instuct=None):
+    def run(self, model, audio, text, mode, speed, seed,  prompt=None, instuct=None, concat= False):
         set_all_random_seed(seed)
         prompt_speech_16k = postprocess(audio)
         speechs = []
-        if model == "跨语种复刻":
-            speechs = [i["tts_speech"] for i in self._cosyvoice.inference_cross_lingual(text, prompt_speech_16k,  speed=speed)]
-        elif model == "3s复刻":
+        if mode == "跨语种复刻":
+            speechs = [i["tts_speech"] for i in model.inference_cross_lingual(text, prompt_speech_16k,  speed=speed)]
+        elif mode == "3s复刻":
             assert prompt is not None , '3s极速复刻 need prompt input'
-            speechs = [i["tts_speech"] for i in self._cosyvoice.inference_zero_shot(text, prompt, prompt_speech_16k, speed=speed)]
-        elif model == "语言控制":
+            speechs = [i["tts_speech"] for i in model.inference_zero_shot(text, prompt, prompt_speech_16k, speed=speed)]
+        elif mode == "语言控制":
             assert instuct is not None , '自然语言控制 need instuct input'
-            speechs = [i["tts_speech"] for i in self._cosyvoice.inference_instruct2(text, instuct, prompt_speech_16k,  speed=speed)]
+            speechs = [i["tts_speech"] for i in model.inference_instruct2(text, instuct, prompt_speech_16k,  speed=speed)]
+        gc.collect()
+        torch.cuda.empty_cache()
         tts_speech = torch.cat(speechs, dim=1)
         tts_speech = tts_speech.unsqueeze(0)
-        return ({"waveform": tts_speech, "sample_rate": self._cosyvoice.sample_rate},)
+        if concat:
+            return  ({"waveform": tts_speech, "sample_rate": model.sample_rate}, {"speechs":speechs, "sample_rate": model.sample_rate},)
+        else:
+            return ( {"waveform": tts_speech, "sample_rate": model.sample_rate},)
 
 class Copy3s(CosyVoice):
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
+                "model": ("MODEL_CosyVoice",),
                 "audio": ("AUDIO",),
                 "prompt": ("TEXT", ),
                 "text": ("TEXT",),
@@ -99,14 +122,15 @@ class Copy3s(CosyVoice):
                 }),
             },
         }
-    def run(self,audio,prompt, text, speed, seed):
-        return super().run(audio,text,"3s复刻",speed,seed,prompt)
+    def run(self,model,audio,prompt, text, speed, seed, concat=False):
+        return super().run(model,audio,text,"3s复刻",speed,seed,prompt,concat=concat)
 
 class CrossLingual(CosyVoice):
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
+                "model": ("MODEL_CosyVoice",),
                 "audio": ("AUDIO",),
                 "text": ("TEXT",),
                 "speed": ("FLOAT", {"default": 1.0, "min": 0.5, "max": 1.5, "step": 0.1}),
@@ -115,14 +139,15 @@ class CrossLingual(CosyVoice):
                 }),
             },
         }
-    def run(self,audio, text, speed, seed):
-        return super().run(audio,text,"跨语种复刻",speed,seed)
+    def run(self,model,audio, text, speed, seed):
+        return super().run(model,audio,text,"跨语种复刻",speed,seed)
 
 class NLControl(CosyVoice):
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
+                "model": ("MODEL_CosyVoice",),
                 "audio": ("AUDIO",),
                 "instuct": ("TEXT", ),
                 "text": ("TEXT",),
@@ -132,26 +157,40 @@ class NLControl(CosyVoice):
                 }),
             },
         }
-    def run(self,audio,instuct, text, speed, seed):
-        return super().run(audio,text,"语言控制",speed,seed,instuct=instuct)
+    def run(self,model,audio,instuct, text, speed, seed):
+        return super().run(model,audio,text,"语言控制",speed,seed,instuct=instuct)
     
-class TextNode:
+class Input:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"text": ("STRING", {"multiline": True, "dynamicPrompts": True})}}
-    RETURN_TYPES = ("TEXT",)
+        return {"required": {
+                        "text": ("STRING",{ "dynamicPrompts": True,}),
+                        "text2": ("STRING", {
+                            "multiline": True,
+                            "dynamicPrompts": True,
+                            "style": "resize: vertical;",
+                            "oninput": "this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';" 
+                        })
+                    }
+                }
+    RETURN_TYPES = ("TEXT","TEXT")
     FUNCTION = "run"
     CATEGORY = "GKK·CosVoice"
+    def run(self,text,text2):
+        return (text,text2)
 
-    def run(self,text):
-        return (text, )
-    
+class VoiceSonic(Copy3s):
+    def run(self,model,audio,prompt, text, speed, seed):
+        return super().run(model, audio, prompt, text,speed,seed,True)
+
+
 NODE_CLASS_MAPPINGS = {
-    "Text":TextNode,
+    "Text2":Input,
+    "CosyVoiceLoader":Loader,
     "CosyVoice3s":Copy3s,
     "CosyVoiceNLControl":NLControl,
     "CosyVoiceCrossLingual":CrossLingual,
-    "CosyVoice":CosyVoice,
+    "CosyVoiceSonic":VoiceSonic,
 }
 
 __all__ = ['NODE_CLASS_MAPPINGS']

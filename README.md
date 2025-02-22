@@ -1,5 +1,5 @@
 # CosyVoice2 for ComfyUI
-A plugin of ComfyUI for CosyVoice2, one component for text to Sonic Video 
+A plugin of ComfyUI for [CosyVoice2](https://github.com/FunAudioLLM/CosyVoice), one component for text to [long Sonic video](https://github.com/benda1989/Sonic-ComfyUI.git)
 ## install plugin
 ```sh
 git clone https://github.com/benda1989/CosyVoice2_ComfyUI.git
@@ -17,4 +17,4 @@ sudo yum install sox sox-devel
 ```
 ## copy models
 By default project will download CosyVoice2-0.5B and CosyVoice-ttsfrd into pretrained_models,
-you can copy it if you downloaded before
+you can copy it there if you downloaded before
