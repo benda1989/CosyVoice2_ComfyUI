@@ -1,0 +1,3 @@
+#!/bin/bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/lyuxiang.lx/data/TensorRT-10.0.1.6-cu124/TensorRT-10.0.1.6/lib:/usr/local/cuda-12.4/lib64
+/mnt/lyuxiang.lx/data/TensorRT-10.0.1.6-cu124/TensorRT-10.0.1.6/bin/trtexec --onnx=/mnt/lyuxiang.lx/CosyVoice_github/pretrained_models/CosyVoice2-0.5B/flow.decoder.estimator.fp32.onnx --saveEngine=/mnt/lyuxiang.lx/CosyVoice_github/pretrained_models/CosyVoice2-0.5B/flow.decoder.estimator.fp16.Volta.plan --fp16 --minShapes=x:2x80x4,mask:2x1x4,mu:2x80x4,cond:2x80x4 --optShapes=x:2x80x193,mask:2x1x193,mu:2x80x193,cond:2x80x193 --maxShapes=x:2x80x6800,mask:2x1x6800,mu:2x80x6800,cond:2x80x6800 --inputIOFormats=fp16:chw,fp16:chw,fp16:chw,fp16:chw,fp16:chw,fp16:chw,fp16:chw --outputIOFormats=fp16:chw
