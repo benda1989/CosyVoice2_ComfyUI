@@ -55,6 +55,7 @@ class Loader:
     FUNCTION = "run"
     CATEGORY = "GKK·CosVoice"
     def run(self, model, load_jit, load_onnx, load_trt):
+        print("GKK·CosVoice: Model loading")
         return (CosyVoice2(os.path.join(model_dir,model), load_jit=load_jit, load_onnx=load_onnx, load_trt=load_trt),)
 
 class CosyVoice():
@@ -90,6 +91,7 @@ class CosyVoice():
         set_all_random_seed(seed)
         prompt_speech_16k = postprocess(audio)
         speechs = []
+        print("GKK·CosVoice: Start infer")
         if mode == "跨语种复刻":
             speechs = [i["tts_speech"] for i in model.inference_cross_lingual(text, prompt_speech_16k,  speed=speed)]
         elif mode == "3s复刻":
@@ -103,6 +105,7 @@ class CosyVoice():
         tts_speech = torch.cat(speechs, dim=1)
         tts_speech = tts_speech.unsqueeze(0)
         if concat:
+            print("GKK·CosVoice: return speechs")
             return  ({"waveform": tts_speech, "sample_rate": model.sample_rate}, {"speechs":speechs, "sample_rate": model.sample_rate},)
         else:
             return ( {"waveform": tts_speech, "sample_rate": model.sample_rate},)
