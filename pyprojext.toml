@@ -10,6 +10,6 @@ Repository = "https://github.com/benda1989/CosyVoice2_ComfyUI"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "benda1989"
 DisplayName = "GKK·CosyVoice"
 Icon = ""
