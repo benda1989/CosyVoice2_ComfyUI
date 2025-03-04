@@ -25,3 +25,6 @@ file tree looks like this at least:
 ```
 ## Example
 ![](3s.PNG)
+
+## Attention
+This project is design for v2, if you want to change between v1 and v2, you should reboot ComfyUI after once used.
