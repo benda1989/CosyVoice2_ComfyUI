@@ -17,7 +17,7 @@ if not os.path.exists(os.path.join(model_dir,"CosyVoice2-0.5B")):
     snapshot_download('iic/CosyVoice-ttsfrd', local_dir='pretrained_models/CosyVoice-ttsfrd')
     os.system(f'cd {model_dir}/CosyVoice-ttsfrd/ && pip install ttsfrd_dependency-0.1-py3-none-any.whl && pip install ttsfrd-0.4.2-cp310-cp310-linux_x86_64.whl && apt install -y unzip && unzip resource.zip -d .')
 
-from cosyvoice.cli.cosyvoice import  CosyVoice2
+from cosyvoice.cli.cosyvoice import  CosyVoice2,CosyVoice as CosyVoice1
 from cosyvoice.utils.common import set_all_random_seed
 
 max_val = 0.8
@@ -56,7 +56,11 @@ class Loader:
     CATEGORY = "GKK·CosVoice"
     def run(self, model, load_jit, load_onnx, load_trt):
         print("GKK·CosVoice: Model loading")
-        return (CosyVoice2(os.path.join(model_dir,model), load_jit=load_jit, load_onnx=load_onnx, load_trt=load_trt),)
+        if "300" in model:
+            return (CosyVoice1(os.path.join(model_dir,model), load_jit=load_jit, load_onnx=load_onnx),)
+
+        else:
+            return (CosyVoice2(os.path.join(model_dir,model), load_jit=load_jit, load_onnx=load_onnx, load_trt=load_trt),)
 
 class CosyVoice():
     
