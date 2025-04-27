@@ -11,5 +11,5 @@ Repository = "https://github.com/benda1989/CosyVoice2_ComfyUI"
 
 [tool.comfy]
 PublisherId = "benda1989"
-DisplayName = "GKK·CosyVoice"
+DisplayName = "CosyVoice2_ComfyUI"
 Icon = ""
